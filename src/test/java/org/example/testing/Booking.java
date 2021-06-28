@@ -10,6 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -54,11 +55,13 @@ public class Booking {
     }
 
     @Test
-    public void book() {
+    public void book() throws InterruptedException {
         openBrowser();
 
         driver.findElement(By.id("flight-search-from"))
                 .sendKeys("Lisboa" + Keys.ENTER);
+        WebElement departure = driver.findElement(By.id("flight-search-from"));
+        System.out.println(departure.getText());
         driver.findElement(By.id("flight-search-to"))
                 .sendKeys("São Vicente" + Keys.ENTER);
 
@@ -70,10 +73,10 @@ public class Booking {
 
         //add adult
         driver.findElement(By.xpath("//button[@class='counter-input__add'][@aria-label='Add Adultos']")).click();
-
+        Thread.sleep(2000);
         //add child
         driver.findElement(By.xpath("//button[@class='counter-input__add'][@aria-label='Add Crianças']")).click();
-
+        Thread.sleep(2000);
         //select date
         driver.findElement(By.xpath("//button[@aria-label='Prosseguir para a página seguinte para selecionar as datas']"))
                 .click();
@@ -83,15 +86,33 @@ public class Booking {
                 .withTimeout(Duration.ofSeconds(20))
                 .pollingEvery(Duration.ofSeconds(2))
                 .ignoring(NoSuchElementException.class);
+
         //get months <li>
         List<WebElement> months = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("//li[@class='month-entry  ']")));
         months.get(3).click();
-
         //get days <div>
-        List<WebElement> days = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("//div[@class='graph__day-bar-filling']")));
+        List<WebElement> days = driver.findElements(By.xpath("(//div[@class='graph__month-bars '])[1]/div"));
         days.get(8).click();
 
+        Thread.sleep(10000);
+        try{
+            WebElement arrivalMonth = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//ul[@class='month-list'])[2]/li[@class='month-entry  '][6]")));
+            arrivalMonth.click();
+        }catch (StaleElementReferenceException e){
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//ul[@class='month-list'])[2]/li[@class='month-entry  '][6]"))).click();
+        }
+        List<WebElement> arrivalDays = driver.findElements(By.xpath("(//div[@class='graph__month-bars '])[2]/div"));
+        arrivalDays.get(9).click();
 
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//button[@class='flight__cabin ng-star-inserted'])[1]"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//button[@class='button button-accent button--icon button--xtrasmall'])[3]"))).click();
+
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//button[@class='flight__cabin ng-star-inserted'])[1]"))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath("(//button[@class='button button-accent button--icon button--xtrasmall'])[3]"))).click();
+
+        js.executeScript("window.scrollBy(0, 1000)");
+
+        driver.findElement(By.xpath("//button[@class='button button-accent button--big button--fat button--mobile-full']")).click();
     }
 
 }
