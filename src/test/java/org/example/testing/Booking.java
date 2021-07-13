@@ -7,7 +7,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class Booking {
 
     WebDriver driver;
 
+    @BeforeTest
     public void openBrowser() {
 
         WebDriverManager.chromedriver().setup();
@@ -38,13 +41,13 @@ public class Booking {
         driver.findElement(By.xpath("/html/body/div[1]/div[3]/form/div[1]/div[1]/div[1]/div/div[2]/input"))
                 .sendKeys("https://www.flytap.com/pt-cv/" + Keys.ENTER);
 
-        driver.findElement(By.xpath("//a[@href='https://www.flytap.com/pt-ar/']")).click();
+        driver.findElement(By.xpath("//a[@href='https://www.flytap.com/pt-mz/']")).click();
         //*[@id="rso"]/div[1]/div/div/a
     }
 
     @Test
     public void checkTitle() {
-        openBrowser();
+        //openBrowser();
 
         String expectedTitle = "FlyTAP – O site oficial da TAP | TAP Air Portugal | TAP Air Portugal";
         String actualTitle = driver.getTitle();
@@ -56,12 +59,16 @@ public class Booking {
 
     @Test
     public void book() throws InterruptedException {
-        openBrowser();
+       //openBrowser();
+
+        SoftAssert softAssert = new SoftAssert();
+        WebElement h1Element = driver.findElement(By.xpath("//h1"));
+        String h1Expected = "Reservar um voo";
+        softAssert.assertEquals(h1Element, h1Expected);
 
         driver.findElement(By.id("flight-search-from"))
                 .sendKeys("Lisboa" + Keys.ENTER);
-        WebElement departure = driver.findElement(By.id("flight-search-from"));
-        System.out.println(departure.getText());
+
         driver.findElement(By.id("flight-search-to"))
                 .sendKeys("São Vicente" + Keys.ENTER);
 
